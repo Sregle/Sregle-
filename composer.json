@@ -1,0 +1,31 @@
+{
+  "name": "sregle/sregle-whatsapp-bot",
+  "description": "WhatsApp bot plugin that connects your site to WhatsApp through auto reply app",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Sregle",
+      "email": "Reformertechnology@gmail.com"
+    }
+  ],
+  "require": {},
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.9",
+    "wp-coding-standards/wpcs": "^3.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+  },
+  "scripts": {
+    "lint": [
+      "vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor ."
+    ],
+    "lint-fix": [
+      "vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=vendor ."
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}
