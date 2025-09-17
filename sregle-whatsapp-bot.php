@@ -2,8 +2,10 @@
 /*
 Plugin Name: Sregle WhatsApp Bot
 Description: WhatsApp bot for vtupress website connect through vprest API — Login/Register/Logout, Balance, Airtime & Data, cached services via Admin API.
+Plugin URI: https://github.com/Sregle/sregle-whatsapp-bot
 Version: 4.3.0
 Author: Sregle Dev Team
+Author URI: https://github.com/Sregle
 */
 
 if (! defined('ABSPATH')) exit;
@@ -1715,4 +1717,16 @@ function sregle_bot_manual_plans_page() {
 register_activation_hook(__FILE__, function() {
     if (get_option(SREGLE_BOT_OPTION_CMD_PREFIX) === false) update_option(SREGLE_BOT_OPTION_CMD_PREFIX, 'sreg');
 });
+
+// Load universal updater
+require_once __DIR__ . '/update-checker.php';
+
+// Register updater
+sregle_register_updater(
+    'https://github.com/Sregle/sregle-whatsapp-bot', // 🔹 Repo URL
+    __FILE__,                                  // 🔹 Path to main plugin file
+    'sregle-whatsapp-bot'                             // 🔹 Plugin slug (folder name)
+    // , 'your-github-token'                   // 🔹 Optional for private repos
+);
+
 /* end of plugin */
