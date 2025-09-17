@@ -1,6 +1,6 @@
 {
   "name": "sregle/sregle-whatsapp-bot",
-  "description": "WhatsApp bot for vtupress website connect through vprest API — Login/Register/Logout, Balance, Airtime & Data, cached services via Admin API,
+  "description": "WhatsApp bot for vtupress website connect through vprest API — Login/Register/Logout, Balance, Airtime & Data, cached services via Admin API"
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "authors": [
