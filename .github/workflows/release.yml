@@ -1,8 +1,5 @@
 name: Universal WP Plugin Build & Release
 
-permissions:
-  contents: write
-
 on:
   push:
     tags:
@@ -22,7 +19,12 @@ jobs:
           php-version: '8.1'
 
       - name: Detect plugin folder name
-        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
+        run: |
+          PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)
+          echo "PLUGIN_NAME=$PLUGIN_NAME" >> $GITHUB_ENV
+          # Convert "sregle-whatsapp-bot" → "Sregle WhatsApp Bot"
+          PRETTY_NAME=$(echo "$PLUGIN_NAME" | sed -E 's/[-_]+/ /g' | sed -E 's/\b(.)/\u\1/g')
+          echo "PRETTY_NAME=$PRETTY_NAME" >> $GITHUB_ENV
 
       - name: Create plugin zip
         run: |
@@ -54,20 +56,25 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const tag = context.ref.replace('refs/tags/', '');
             const { data } = await github.repos.generateReleaseNotes({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: context.ref.replace('refs/tags/', ''),
+              tag_name: tag,
               target_commitish: context.sha
             });
-            return { body: data.body };
+            return {
+              body: data.body,
+              tag: tag
+            };
 
+      # ✅ Create GitHub Release with pretty plugin name
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.notes.outputs.tag }}
+          name: "${{ env.PRETTY_NAME }} ${{ steps.notes.outputs.tag }}"
           files: "*.zip"
           body: ${{ steps.notes.outputs.body }}
           allowUpdates: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
