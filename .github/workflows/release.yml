@@ -1,0 +1,65 @@
+name: Universal WP Plugin Build & Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"   # Runs when you push a version tag like v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Detect plugin folder name
+        id: plugin
+        run: |
+          REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          echo "PLUGIN_NAME=${REPO_NAME}" >> $GITHUB_ENV
+
+      - name: Create plugin zip
+        run: |
+          mkdir -p build/${PLUGIN_NAME}
+          rsync -av --progress ./ build/${PLUGIN_NAME} \
+            --exclude build --exclude .git --exclude .github
+          cd build
+          zip -r ${PLUGIN_NAME}.zip ${PLUGIN_NAME}
+
+      - name: Upload zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-zip
+          path: build/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-zip
+          path: .
+
+      - name: Generate Changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v5
+        with:
+          configuration: ".github/changelog-config.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.zip"
+          body: ${{ steps.changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
