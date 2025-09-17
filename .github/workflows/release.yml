@@ -1,9 +1,12 @@
 name: Universal WP Plugin Build & Release
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
-      - "v*.*.*"   # Runs when you push a version tag like v1.0.0
+      - "v*.*.*"
 
 jobs:
   build:
@@ -19,10 +22,7 @@ jobs:
           php-version: '8.1'
 
       - name: Detect plugin folder name
-        id: plugin
-        run: |
-          REPO_NAME=$(basename $GITHUB_REPOSITORY)
-          echo "PLUGIN_NAME=${REPO_NAME}" >> $GITHUB_ENV
+        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
 
       - name: Create plugin zip
         run: |
@@ -48,18 +48,26 @@ jobs:
           name: plugin-zip
           path: .
 
-      - name: Generate Changelog
-        id: changelog
-        uses: mikepenz/release-changelog-builder-action@v5
+      # ✅ Generate release notes automatically from commits
+      - name: Generate Release Notes
+        id: notes
+        uses: actions/github-script@v7
         with:
-          configuration: ".github/changelog-config.json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data } = await github.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: context.ref.replace('refs/tags/', ''),
+              target_commitish: context.sha
+            });
+            return { body: data.body };
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           files: "*.zip"
-          body: ${{ steps.changelog.outputs.changelog }}
+          body: ${{ steps.notes.outputs.body }}
+          allowUpdates: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
