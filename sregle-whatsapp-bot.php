@@ -21,6 +21,77 @@ define('SREGLE_BOT_OPTION_ADMIN_ID','sregle_bot_admin_id');
 define('SREGLE_BOT_OPTION_ADMIN_APIKEY','sregle_bot_admin_apikey');
 define('SREGLE_BOT_OPTION_WEBHOOK_KEY','sregle_bot_webhook_key');
 define('SREGLE_BOT_OPTION_CMD_PREFIX','sregle_bot_cmd_prefix');
+define('SREGLE_GITHUB_REPO', 'sregle/sregle-whatsapp-bot'); // change to your repo
+define('SREGLE_PLUGIN_FILE', plugin_basename(__FILE__));
+
+
+// GitHub Plugin Updater for Sregle WhatsApp Bot
+add_filter('pre_set_site_transient_update_plugins', 'sregle_check_for_update');
+function sregle_check_for_update($transient) {
+    if (empty($transient->checked)) {
+        return $transient;
+    }
+
+    $plugin_file = SREGLE_PLUGIN_FILE;
+    $current_version = get_plugin_data(__FILE__)['Version'];
+
+    // Fetch latest release from GitHub API
+    $request = wp_remote_get("https://api.github.com/repos/" . SREGLE_GITHUB_REPO . "/releases/latest");
+
+    if (is_wp_error($request)) {
+        return $transient;
+    }
+
+    $release = json_decode(wp_remote_retrieve_body($request));
+    if (empty($release->tag_name)) {
+        return $transient;
+    }
+
+    $remote_version = ltrim($release->tag_name, 'v'); // tag v4.3.1 → 4.3.1
+    $zip_url = $release->assets[0]->browser_download_url ?? $release->zipball_url;
+
+    if (version_compare($current_version, $remote_version, '<')) {
+        $obj = new stdClass();
+        $obj->slug = dirname($plugin_file);
+        $obj->plugin = $plugin_file;
+        $obj->new_version = $remote_version;
+        $obj->url = $release->html_url; // GitHub release page
+        $obj->package = $zip_url;       // Download link
+        $transient->response[$plugin_file] = $obj;
+    }
+
+    return $transient;
+}
+
+// Add "View details" popup with changelog
+add_filter('plugins_api', 'sregle_plugin_info', 10, 3);
+function sregle_plugin_info($res, $action, $args) {
+    if ($action !== 'plugin_information') return $res;
+    if ($args->slug !== dirname(SREGLE_PLUGIN_FILE)) return $res;
+
+    $request = wp_remote_get("https://api.github.com/repos/" . SREGLE_GITHUB_REPO . "/releases/latest");
+    if (is_wp_error($request)) return $res;
+
+    $release = json_decode(wp_remote_retrieve_body($request));
+    if (empty($release->tag_name)) return $res;
+
+    $remote_version = ltrim($release->tag_name, 'v');
+    $zip_url = $release->assets[0]->browser_download_url ?? $release->zipball_url;
+
+    return (object) [
+        'name'        => 'Sregle WhatsApp Bot',
+        'slug'        => dirname(SREGLE_PLUGIN_FILE),
+        'version'     => $remote_version,
+        'author'      => '<a href="https://sregle.com">Sregle Dev Team</a>',
+        'homepage'    => $release->html_url,
+        'download_link' => $zip_url,
+        'sections'    => [
+            'description' => 'WhatsApp bot for VtuPress websites using vprest API.',
+            'changelog'   => $release->body ?? 'No changelog provided.',
+        ],
+    ];
+}
+
 
 /* =========================================================
    ADMIN MENU (top-level: Sregle Bot)
