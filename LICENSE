@@ -1,0 +1,19 @@
+
+---
+
+# 🔹 4. `plugin-name.php` (Starter Plugin File)
+
+```php
+<?php
+/*
+Plugin Name: sregle WhatsApp bot
+Description: Short description of what this plugin does.
+Version: 1.0.0
+Author: Sregle Dev Team 
+License: GPL2
+*/
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+// Your plugin code starts here
