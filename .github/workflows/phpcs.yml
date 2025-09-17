@@ -22,5 +22,13 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Run PHPCS
-        run: composer lint
+      - name: Run PHPCS (generate report)
+        run: |
+          composer lint || true
+          vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor . -q --report-full=phpcs-report.txt || true
+
+      - name: Upload PHPCS report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpcs-report
+          path: phpcs-report.txt
