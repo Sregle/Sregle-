@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sregle WhatsApp Bot
 Description: WhatsApp bot for vtupress website connect through vprest API — Login/Register/Logout, Balance, Airtime & Data, cached services via Admin API.
-Version: 4.2.0
+Version: 4.3.0
 Author: Sregle Dev Team
 */
 
