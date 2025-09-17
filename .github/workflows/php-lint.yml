@@ -1,10 +1,15 @@
-name: PHP Lint
+name: PHP Syntax Lint
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  lint:
+  php-lint:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -14,5 +19,5 @@ jobs:
         with:
           php-version: '8.1'
 
-      - name: Validate PHP syntax
-        run: find . -type f -name "*.php" -exec php -l {} \;
+      - name: Run PHP Syntax Check
+        run: composer php-lint
