@@ -15,13 +15,16 @@
     "wp-coding-standards/wpcs": "^3.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
   },
-  "scripts": {
-    "lint": [
-      "vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor ."
-    ],
-    "lint-fix": [
-      "vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=vendor ."
-    ]
+    "scripts": {
+  "lint": [
+    "vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor ."
+  ],
+  "lint-fix": [
+    "vendor/bin/phpcbf --standard=WordPress --extensions=php --ignore=vendor ."
+  ],
+  "php-lint": [
+    "find . -type f -name '*.php' ! -path './vendor/*' -exec php -l {} \\;"
+  ]
   },
   "config": {
     "allow-plugins": {
