@@ -1,0 +1,7 @@
+# Commit Message Template
+
+<type>(scope): <short description>
+
+[optional body]
+
+[optional footer: BREAKING CHANGE: <explanation>]
