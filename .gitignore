@@ -1,0 +1,32 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE / editor junk
+*.log
+*.tmp
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Node & build tools
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Composer
+/vendor/
+composer.lock
+
+# WordPress (keep only plugin code)
+wp-content/
+wp-config.php
+
+# GitHub Actions build
+/build/
+*.zip
+
+# Env files
+.env
+.env.local
